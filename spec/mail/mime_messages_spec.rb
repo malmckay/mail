@@ -376,6 +376,7 @@ describe "MIME Emails" do
       Dir.glob(fixture('attachments', "test.*")).each do |test_attachment|
         # This spec fails for (most?) jpegs in 1.8.7
         next if test_attachment.end_with?('test.jpg')
+        next unless test_attachment.end_with?('.gif')
 
         it "should find binary encoded attachments of type #{File.extname(test_attachment)}" do
           raw_mail = File.open(fixture('emails', 'mime_emails', 'raw_email_with_binary_encoded.eml'), 'rb').read
@@ -387,6 +388,8 @@ describe "MIME Emails" do
           mail = Mail.read_from_string(mail_with_file)
           # mail.attachments.first.decoded.should eq raw_file
           # Test size, not content. Testing content makes for very ugly spec failures
+          File.open("/tmp/#{test_attachment}", "w"){|f|f.write(mail.attachments.first.decoded)}
+          File.open("/tmp/x#{test_attachment}", "w"){|f|f.write(raw_file)}
           mail.attachments.first.decoded.size.should eq raw_file.size
         end
       end
